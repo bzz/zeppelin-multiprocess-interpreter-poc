@@ -1,0 +1,44 @@
+description = ''
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'scala'
+apply plugin: 'scrooge-gradle-plugin'
+
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'com.github.iamsteveholmes:scrooge-gradle-plugin:0.5'
+  }
+}
+
+version = '0.1'
+
+compileScrooge {
+    thriftFiles = fileTree(dir: "src/main/thrift", include: "**/*.thrift")
+    dest = file("src/gen/scala")
+    opts = ["-l", "scala"]
+}
+
+sourceSets {
+    main {
+        scala { srcDir 'src/gen/scala' }
+    }
+}
+
+task spec(dependsOn: ['testClasses'], type: JavaExec) {
+  main = 'org.scalatest.tools.Runner'
+  args = ['-R', 'build/classes/test', '-o']
+  classpath = sourceSets.test.runtimeClasspath
+}
+
+
+dependencies {
+    compile "com.twitter:scrooge-core_$scalaBinaryVersion:3.17.0"
+    compile "org.scala-lang:scala-library:$scalaBinaryVersion.4"
+    compile "org.apache.thrift:libthrift:0.9.0"
+    testCompile "org.scalatest:scalatest_$scalaBinaryVersion:2.2.1"
+}
+

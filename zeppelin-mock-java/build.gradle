@@ -1,0 +1,35 @@
+description = 'Zeppelin mock'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'scrooge-gradle-plugin'
+
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'com.github.iamsteveholmes:scrooge-gradle-plugin:0.5'
+  }
+}
+
+compileScrooge {
+    thriftFiles = fileTree(dir: "src/main/thrift", include: "**/*.thrift")
+    dest = file("src/gen/java")
+    opts = ["-l", "experimental-java"]
+}
+
+sourceSets {
+    main {
+        java { srcDir 'src/gen/java' }
+    }
+}
+
+
+dependencies {
+  compile("com.twitter:scrooge-runtime_$scalaBinaryVersion:3.17.0") {
+    exclude group:'com.twitter', module:"finagle-thrift_$scalaBinaryVersion"
+  }
+  compile "org.apache.thrift:libthrift:0.9.0"
+}

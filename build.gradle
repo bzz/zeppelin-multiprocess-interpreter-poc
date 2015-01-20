@@ -1,0 +1,25 @@
+description = 'PoC of remote interprete for Zeppelin'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'base'
+
+subprojects {
+  apply plugin: 'eclipse'
+  apply plugin: 'idea'
+  apply plugin: 'java'
+
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+}
+
+version = '0.1'
+ext {
+    scalaBinaryVersion = '2.10'
+}
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '2.2.1'
+}
+
