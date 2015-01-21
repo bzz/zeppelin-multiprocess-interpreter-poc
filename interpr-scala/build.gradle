@@ -2,7 +2,6 @@ description = 'Remote interprete in Scala'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'scala'
-apply plugin: 'scrooge-gradle-plugin'
 
 buildscript {
   repositories {
@@ -10,17 +9,10 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath 'com.github.iamsteveholmes:scrooge-gradle-plugin:0.5'
   }
 }
 
 version = '0.1'
-
-compileScrooge {
-    thriftFiles = fileTree(dir: "src/main/thrift", include: "**/*.thrift")
-    dest = file("src/gen/scala")
-    opts = ["-l", "scala"]
-}
 
 sourceSets {
     main {
@@ -35,8 +27,20 @@ task spec(dependsOn: ['testClasses'], type: JavaExec) {
 }
 
 
+jar {
+    manifest {
+        attributes 'Main-Class': 'zeppelin.Interpreter'
+    }
+    from {
+        (configurations.default).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+
+}
+
 dependencies {
-    compile "com.twitter:scrooge-core_$scalaBinaryVersion:3.17.0"
+    compile "org.slf4j:slf4j-log4j12:1.5.8"
     compile "org.scala-lang:scala-library:$scalaBinaryVersion.4"
     compile "org.apache.thrift:libthrift:0.9.0"
     testCompile "org.scalatest:scalatest_$scalaBinaryVersion:2.2.1"
