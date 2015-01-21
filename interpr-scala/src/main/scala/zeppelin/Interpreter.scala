@@ -21,12 +21,13 @@ class InterpreterServerImpl extends InterpreterServer.Iface {
 
 object Interpreter extends App {
   val port = 9090
+  val host = "localhost"
 
   println("Starting Zeppelin interpreter")
   try {
     val server = buildServer()    
     server.serve();     
-  } catch { 
+  } catch {
     case x: Exception => x.printStackTrace();
   }
 
@@ -36,7 +37,11 @@ object Interpreter extends App {
     val processor = new InterpreterServer.Processor(new InterpreterServerImpl())
 
     //val server = new TThreadPoolServer(new Args(transport).processor(processor))
-    val server = new TSimpleServer(new Args(transport).processor(processor))
+    val server = new TSimpleServer(new Args(transport)
+      .processor(processor)
+      .protocolFactory(new TCompactProtocol.Factory())
+      .transportFactory(new TFramedTransport.Factory())
+    )
     server
   }
 }
