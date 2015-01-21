@@ -13,7 +13,7 @@ class Zeppelin {
   private static final int PORT = 9090;
   private static final int SOCKET_TIMEOUT = 1000;
 
-  
+
   static class RemoteInterpreter {
     private TSocket socket;
     private TTransport transport;
@@ -39,11 +39,15 @@ class Zeppelin {
     }
     
     void stop() {
+      try {
+        client.shutdown();
+      } catch (TException e) {
+        e.printStackTrace();
+      }
       transport.close();
-      //TODO: process shutdown
     }
     
-    void interperte(String text) {
+    InterpreterResult interperte(String text) {
       //sent it a command
       InterpreterResult ir = null;
       try {
@@ -52,6 +56,7 @@ class Zeppelin {
         e.printStackTrace();
       }
       System.out.println("In:\t" + text + " \nOut:\t" + ir.result);
+      return ir;
     }
   }
 
@@ -60,7 +65,7 @@ class Zeppelin {
     RemoteInterpreter rmi = new RemoteInterpreter();
     rmi.start();
 
-    rmi.interperte("val i = 1");
+    InterpreterResult r = rmi.interperte("val i = 1");
 
     rmi.stop();
   }
