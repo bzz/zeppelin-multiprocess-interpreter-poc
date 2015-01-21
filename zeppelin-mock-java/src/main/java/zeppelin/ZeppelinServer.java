@@ -1,40 +1,68 @@
 package zeppelin;
 
-import java.util.List;
-
+import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TTransportException;
 
 class Zeppelin {
   private static final String HOST = "localhost";
   private static final int PORT = 9090;
   private static final int SOCKET_TIMEOUT = 1000;
 
+  
+  static class RemoteInterpreter {
+    private TSocket socket;
+    private TTransport transport;
+    private InterpreterServer.Client client;
+    
+    void start() {
+      System.out.println("Starting Zeppelin server");
+
+      socket = new TSocket(HOST, PORT);
+      transport = new TFramedTransport(socket);
+      socket.setTimeout(SOCKET_TIMEOUT);
+      final TProtocol protocol = new TCompactProtocol(transport);
+
+      client = new InterpreterServer.Client(protocol);
+      try {
+        transport.open();
+      } catch (TTransportException e) {
+        e.printStackTrace();
+      }
+
+      //TODO
+      //fork interpreter process from ../interp-scala/bin/
+    }
+    
+    void stop() {
+      transport.close();
+      //TODO: process shutdown
+    }
+    
+    void interperte(String text) {
+      //sent it a command
+      InterpreterResult ir = null;
+      try {
+        ir = client.interprete(text);
+      } catch (TException e) {
+        e.printStackTrace();
+      }
+      System.out.println("In:\t" + text + " \nOut:\t" + ir.result);
+    }
+  }
+
+  
   public static final void main(String[] argv) {
-    System.out.println("Starting Zeppelin server");
+    RemoteInterpreter rmi = new RemoteInterpreter();
+    rmi.start();
 
-    //start ThriftClient
-    final TSocket socket = new TSocket(HOST, PORT);
-		socket.setTimeout(SOCKET_TIMEOUT);
-		final TTransport transport = new TFramedTransport(socket);
-		final TProtocol protocol = new TCompactProtocol(transport);
-		final Twitter.Client client = new Twitter.Client(protocol);
-		
-		//The transport must be opened before you can begin using
-		transport.open();
+    rmi.interperte("val i = 1");
 
-    //TODO
-    //fork interpreter process from ../interp-scala/bin/
-
-
-    //sent it a command
-		List<String> classInv = client.getCourseInventory();
-		System.out.println("Received " + classInv.size() + " class(es).");
-		
-		transport.close();
+    rmi.stop();
   }
 
 }
