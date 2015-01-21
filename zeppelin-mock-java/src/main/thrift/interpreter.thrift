@@ -1,6 +1,6 @@
 namespace java zeppelin
 namespace scala zeppelin
-namespace python zeppelin
+namespace py zeppelin
 
 
 struct InterpreterResult {
