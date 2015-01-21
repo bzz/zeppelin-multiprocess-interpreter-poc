@@ -53,14 +53,16 @@ class ZeppelinServer {
     }
     
     InterpreterResult interperte(String text) {
-      //sent it a command
+      System.out.println("Sending 'interprete' command, code: "+ text);
       InterpreterResult ir = null;
       try {
         ir = client.interprete(text);
       } catch (TException e) {
         e.printStackTrace();
+        System.out.println("Remote interpretation failed");
+
       }
-      System.out.println("In:\t" + text + " \nOut:\t" + ir.result);
+      System.out.println("In:\t" + text + " \nOut:\t" + ir == null ? "null" : ir.result);
       return ir;
     }
   }

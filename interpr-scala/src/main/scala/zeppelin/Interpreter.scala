@@ -20,6 +20,7 @@ class InterpreterServerImpl extends InterpreterServer.Iface {
 }
 
 object Interpreter extends App {
+  val port = 9090
 
   println("Starting Zeppelin interpreter")
   try {
@@ -30,7 +31,8 @@ object Interpreter extends App {
   }
 
   def buildServer() = {
-    val transport = new TServerSocket(9090)
+    println("Listnenig port " + port)
+    val transport = new TServerSocket(port)
     val processor = new InterpreterServer.Processor(new InterpreterServerImpl())
 
     //val server = new TThreadPoolServer(new Args(transport).processor(processor))
